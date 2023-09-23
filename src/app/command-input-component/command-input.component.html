@@ -1,0 +1,9 @@
+<form [formGroup]="form" (submit)="onSubmit()">
+  <input type="text" formControlName="command" (keydown)="onKeyDown($event)" placeholder="Enter command...">
+  <button type="submit">Add</button>
+  <button type="button" (click)="onReset.next()">Reset</button>
+  <ul *ngIf="suggestions.length > 0">
+    <li *ngFor="let suggestion of suggestions; let i = index" [class.selected]="i === selectedIndex"
+      (click)="form.get('command')?.setValue(suggestion); suggestions = [];">{{ suggestion }}</li>
+  </ul>
+</form>
