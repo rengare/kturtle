@@ -1,4 +1,11 @@
 import { Turtle } from './turtle';
+import {
+  parse,
+  CommandWithType,
+  CommandWithNumberValue,
+  CommandWithListValue,
+} from './lang/parser';
+import { lexer } from './lang/lexer';
 
 export const availableCommands = [
   'forward',
@@ -16,47 +23,35 @@ export const availableCommands = [
   'pencolor',
 ];
 
-const getNumber = (command: string): number => {
-  const [_, degrees] = command.split(' ');
-  return Number(degrees || 1);
-};
-
 const commandHandlers: {
-  [key in string]: (turtle: Turtle, command: any) => void;
+  [key in CommandWithType['type']]: (turtle: Turtle, command: any) => void;
 } = {
-  forward: (t) => t.forward(),
   backward: (t) => console.log('tbd'),
-  turnleft: (t, c: string) => t.turnLeft(getNumber(c)),
-  turnright: (t, c: string) => t.turnRight(getNumber(c)),
-  direction: (t, c: string) => t.setDirection(getNumber(c)),
+  forward: (t) => t.forward(),
+  penup: (t) => t.penUp(),
+  pendown: (t) => t.penDown(),
+  turnleft: (t, { value }: CommandWithNumberValue) => t.turnLeft(value),
+  turnright: (t, { value }: CommandWithNumberValue) => t.turnRight(value),
+  direction: (t, { value }: CommandWithNumberValue) => t.setDirection(value),
+  penwidth: (t, { value }: CommandWithNumberValue) => t.setPenWidth(value),
+  gox: (t, { value }: CommandWithNumberValue) => t.setX(value),
+  goy: (t, { value }: CommandWithNumberValue) => t.setY(value),
   center: (t) => t.center(),
-  go: (t, c: string) => {
-    const [_, x, y] = c.split(' ');
-    t.penUp();
-    if (!x || !y) {
-      t.center();
-      return;
-    }
+  go: (t, { value: [x, y] }: CommandWithListValue) => {
     t.setX(Number(x));
     t.setY(Number(y));
   },
-  gox: (t, c: string) => t.setX(getNumber(c)),
-  goy: (t, c: string) => t.setY(getNumber(c)),
-  penup: (t) => t.penUp(),
-  pendown: (t) => t.penDown(),
-  penwidth: (t, c: string) => t.setPenWidth(getNumber(c)),
-  pencolor: (t, c: string) => {
-    const [_, r, g, b] = c.split(' ');
-    if (!r || !g || !b) return;
-
-    t.setPenColor({ r, g, b });
-  },
+  pencolor: (t, { value: [r, g, b] }) => t.setPenColor({ r, g, b }),
 };
 
-export function executeCommand(turtle: Turtle, command: string): void {
-  if (!command) return;
-  const [c, _] = command.split(' ');
-  const handler = commandHandlers[c];
+const pipe =
+  (input: any) =>
+  (...fns: Function[]) =>
+    fns.reduce((result, fn) => fn(result), input);
+
+export function executeCommand(turtle: Turtle, input: string): void {
+  const command: CommandWithType = pipe(input)(lexer, parse);
+  const handler = commandHandlers[command.type];
   if (handler) {
     handler(turtle, command);
     turtle.drawScene();
