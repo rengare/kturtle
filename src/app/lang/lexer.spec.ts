@@ -1,5 +1,6 @@
 import { Chance } from 'chance';
-import { lexer, TokenType } from './lexer';
+import { TokenType } from 'src/app/models';
+import { lexer } from './lexer';
 import { parse } from './parser';
 
 const chance = new Chance();
@@ -49,13 +50,13 @@ describe('Parser', () => {
   [
     {
       input: 'forward',
-      result: { type: 'forward' },
+      result: { type: 'forward', value: [0] },
     },
     {
       input: `turnleft ${degrees}`,
       result: {
         type: 'turnleft',
-        value: degrees,
+        value: [degrees],
       },
     },
     {
@@ -77,6 +78,13 @@ describe('Parser', () => {
       result: {
         type: 'pencolor',
         value: [0, 0, 0],
+      },
+    },
+    {
+      input: `turnleft`,
+      result: {
+        type: 'turnleft',
+        value: [0],
       },
     },
   ].forEach(({ input, result }) => {

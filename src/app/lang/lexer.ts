@@ -1,14 +1,5 @@
-export enum TokenType {
-  COMMAND,
-  NUMBER,
-}
+import { Token, TokenType } from 'src/app/models';
 
-export type TokenValueType = string | number;
-
-export interface Token {
-  type: TokenType;
-  value: TokenValueType;
-}
 
 export const lexer = (input: string): Token[] => {
   const WHITESPACE = /\s/;

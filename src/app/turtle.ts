@@ -1,3 +1,9 @@
+import {
+  CommandWithListValue,
+  CommandWithNumberValue,
+  CommandWithType,
+} from './lang/parser';
+
 interface Line {
   startX: number;
   startY: number;
@@ -27,6 +33,37 @@ export class Turtle {
     this.ctx.lineWidth = this.penWidth;
     this.ctx.strokeStyle = this.penColor;
     this.turtleImage = turtleImage;
+    this.reset();
+  }
+
+  execute(command: CommandWithType) {
+    const commandHandlers: {
+      [key in CommandWithType['type']]: (command: any) => void;
+    } = {
+      backward: () => console.log('tbd'),
+      forward: () => this.forward(),
+      penup: () => this.penUp(),
+      pendown: () => this.penDown(),
+      turnleft: ( { value }: CommandWithNumberValue) => this.turnLeft(value),
+      turnright: ( { value }: CommandWithNumberValue) => this.turnRight(value),
+      direction: ( { value }: CommandWithNumberValue) =>
+        this.setDirection(value),
+      penwidth: ( { value }: CommandWithNumberValue) => this.setPenWidth(value),
+      gox: ( { value }: CommandWithNumberValue) => this.setX(value),
+      goy: ( { value }: CommandWithNumberValue) => this.setY(value),
+      center: () => this.center(),
+      go: ( { value: [x, y] }: CommandWithListValue) => {
+        this.setX(Number(x));
+        this.setY(Number(y));
+      },
+      pencolor: ( { value: [r, g, b] }) => this.setPenColor({ r, g, b }),
+    };
+
+    const handler = commandHandlers[command.type];
+    if (handler) {
+      handler( command);
+      this.drawScene();
+    }
   }
 
   drawTurtle() {
@@ -48,7 +85,14 @@ export class Turtle {
     }
   }
 
-  forward() {
+  reset() {
+    this.center();
+    this.direction = 0;
+    this.lines = [];
+    this.drawScene();
+  }
+
+  private forward() {
     const moveX = Math.sin(this.direction) * 10 * this.movementSpeed;
     const moveY = Math.cos(this.direction) * 10 * this.movementSpeed;
     const imageSize = 5;
@@ -79,45 +123,45 @@ export class Turtle {
     this.y -= moveY;
   }
 
-  drawScene() {
+  private drawScene() {
     this.clearCanvas();
     this.drawLines();
     this.drawTurtle();
   }
 
-  clearCanvas() {
+  private clearCanvas() {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
   }
 
-  turnLeft(degrees: number) {
+  private turnLeft(degrees: number) {
     this.direction -= degrees * (Math.PI / 180);
   }
 
-  turnRight(degrees: number) {
+  private turnRight(degrees: number) {
     this.direction += degrees * (Math.PI / 180);
   }
 
-  setDirection(degrees: number) {
+  private setDirection(degrees: number) {
     this.direction = degrees * (Math.PI / 180);
   }
 
-  setX(x: number) {
+  private setX(x: number) {
     this.x = x;
   }
 
-  setY(y: number) {
+  private setY(y: number) {
     this.y = y;
   }
 
-  penUp() {
+  private penUp() {
     this.isPenDown = false;
   }
 
-  penDown() {
+  private penDown() {
     this.isPenDown = true;
   }
 
-  setPenColor({
+  private setPenColor({
     r,
     g,
     b,
@@ -130,19 +174,12 @@ export class Turtle {
     this.ctx.strokeStyle = this.penColor;
   }
 
-  setPenWidth(width: number) {
+  private setPenWidth(width: number) {
     this.penWidth = width;
     this.ctx.lineWidth = this.penWidth;
   }
 
-  reset() {
-    this.center();
-    this.direction = 0;
-    this.lines = [];
-    this.drawScene();
-  }
-
-  center() {
+  private center() {
     this.x = this.ctx.canvas.width / 2;
     this.y = this.ctx.canvas.height / 2;
   }

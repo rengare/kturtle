@@ -7,7 +7,14 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Turtle } from './turtle';
-import { executeCommand } from './command';
+import { CommandWithType, parse } from './lang/parser';
+import { lexer } from './lang/lexer';
+import { TokenType } from 'src/app/models';
+
+const pipe =
+  (input: any) =>
+  (...fns: Function[]) =>
+    fns.reduce((result, fn) => fn(result), input);
 
 @Component({
   selector: 'app-root',
@@ -38,10 +45,13 @@ export class AppComponent {
     this.reset();
   }
 
-  addCommand(command: string) {
-    this.commands.push(command);
+  addCommand(input: string) {
+    const command: CommandWithType = pipe(input)(lexer, parse);
+    if (command.type === TokenType.NOT_FOUND) return;
+    this.commands.push(input);
+
     if (this.turtle) {
-      executeCommand(this.turtle, command);
+      this.turtle.execute(command);
     }
   }
 

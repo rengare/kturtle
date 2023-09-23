@@ -4,6 +4,9 @@
   <button type="button" (click)="onReset.next()">Reset</button>
   <ul *ngIf="suggestions.length > 0">
     <li *ngFor="let suggestion of suggestions; let i = index" [class.selected]="i === selectedIndex"
-      (click)="form.get('command')?.setValue(suggestion); suggestions = [];">{{ suggestion }}</li>
+    class="tooltip"
+      (click)="form.get('command')?.setValue(suggestion.example);">{{ suggestion.command }}
+      <span class="tooltiptext">{{suggestion.example}}</span>
+    </li>
   </ul>
 </form>
