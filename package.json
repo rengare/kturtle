@@ -19,6 +19,10 @@
     "@angular/platform-browser-dynamic": "^16.2.0",
     "@angular/router": "^16.2.0",
     "chance": "^1.1.11",
+    "monaco-editor": "^0.43.0",
+    "ng-zorro-antd": "16.2.0",
+    "ngx-monaco-editor-v2": "^16.0.1",
+    "p5": "^1.7.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.13.0"

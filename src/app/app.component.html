@@ -1,10 +1,13 @@
 <div class="parrent">
   <div class="command">
-    Commands:
-    <app-command-input (onCommandAdded)="addCommand($event)" (onReset)="reset()"></app-command-input>
-    <div class="command--list">
-      <p *ngFor="let command of commands">{{command}}</p>
-    </div>
+    <!-- Commands: -->
+    <!-- <app-command-input (onCommandAdded)="addCommand($event)" (onReset)="reset()"></app-command-input> -->
+    <!-- <div class="command--list"> -->
+    <!--   <p *ngFor="let command of commands">{{command}}</p> -->
+    <!-- </div> -->
+
+    <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="code" (onInit)="onInit($event)"></ngx-monaco-editor>
+    <button nz-button nzType="primary" class="command--run" (click)="run()">Run</button>
   </div>
 
   <div class="scene">

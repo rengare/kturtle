@@ -19,7 +19,7 @@ export class Turtle {
   private direction: number = 0;
   private isPenDown: boolean = false;
   private penWidth: number = 1;
-  private movementSpeed = 3;
+  private movementSpeed = 1;
   private penColor: string = '#000000';
   private turtleImage: HTMLImageElement;
   private ctx: CanvasRenderingContext2D;
@@ -44,24 +44,24 @@ export class Turtle {
       forward: () => this.forward(),
       penup: () => this.penUp(),
       pendown: () => this.penDown(),
-      turnleft: ( { value }: CommandWithNumberValue) => this.turnLeft(value),
-      turnright: ( { value }: CommandWithNumberValue) => this.turnRight(value),
-      direction: ( { value }: CommandWithNumberValue) =>
+      turnleft: ({ value }: CommandWithNumberValue) => this.turnLeft(value),
+      turnright: ({ value }: CommandWithNumberValue) => this.turnRight(value),
+      direction: ({ value }: CommandWithNumberValue) =>
         this.setDirection(value),
-      penwidth: ( { value }: CommandWithNumberValue) => this.setPenWidth(value),
-      gox: ( { value }: CommandWithNumberValue) => this.setX(value),
-      goy: ( { value }: CommandWithNumberValue) => this.setY(value),
+      penwidth: ({ value }: CommandWithNumberValue) => this.setPenWidth(value),
+      gox: ({ value }: CommandWithNumberValue) => this.setX(value),
+      goy: ({ value }: CommandWithNumberValue) => this.setY(value),
       center: () => this.center(),
-      go: ( { value: [x, y] }: CommandWithListValue) => {
+      go: ({ value: [x, y] }: CommandWithListValue) => {
         this.setX(Number(x));
         this.setY(Number(y));
       },
-      pencolor: ( { value: [r, g, b] }) => this.setPenColor({ r, g, b }),
+      pencolor: ({ value: [r, g, b] }) => this.setPenColor({ r, g, b }),
     };
 
     const handler = commandHandlers[command.type];
     if (handler) {
-      handler( command);
+      handler(command);
       this.drawScene();
     }
   }

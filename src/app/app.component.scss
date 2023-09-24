@@ -8,9 +8,25 @@ $border-size: 3px;
 
 .command {
   flex: 1;
+  position: relative;
+  box-sizing: border-box;
   height: 100%;
+  padding: 10px;
   background-color: #f5f5f5;
   border-right: $border-size solid #e0e0e0;
+
+  ngx-monaco-editor {
+      height: 100%;
+      width: 100%;
+      display: block;
+  }
+
+  .command--run {
+    position: absolute;
+    z-index: 1;
+    right: 0px;
+    top: 0px;
+  }
 
   .command--list {
     max-height: 80vh;
@@ -27,4 +43,9 @@ $border-size: 3px;
   canvas {
     border: $border-size solid #e0e0e0;
   }
+}
+
+.monaco-action-bar .action-item .action-label.run-code {
+    width: 20px;
+    height: 20px;
 }
