@@ -33,16 +33,17 @@ export class Scene {
 
   reset(width: number, height: number) {
     this.turtle?.reset();
+    this.turtle = undefined;
     this.canvas?.remove();
 
     this.width = width;
     this.height = height;
 
     this.canvas = new p5(this.createSketch.bind(this));
-    this.turtle = new Turtle(this.canvas as p5, this.turtleImage as p5.Image);
   }
 
   execute(input: string) {
+    if (!this.turtle) return;
     const pipe =
       (input: any) =>
       (...fns: Function[]) =>
@@ -50,6 +51,6 @@ export class Scene {
 
     const command: CommandWithType = pipe(input)(lexer, parse);
     if (command.type === TokenType.NOT_FOUND) return;
-    this.turtle?.execute(command);
+    this.turtle.execute(command);
   }
 }
