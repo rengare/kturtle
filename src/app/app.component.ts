@@ -8,16 +8,9 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { Turtle } from './turtle';
-import { CommandWithType, parse } from './lang/parser';
-import { lexer } from './lang/lexer';
-import { TokenType } from 'src/app/models';
 import { Subject, delay, of, takeUntil, tap, concatMap, from } from 'rxjs';
 
-const pipe =
-  (input: any) =>
-  (...fns: Function[]) =>
-    fns.reduce((result, fn) => fn(result), input);
+import { Scene } from './sketch';
 
 @Component({
   selector: 'app-root',
@@ -30,7 +23,6 @@ export class AppComponent implements OnInit, OnDestroy {
     | ElementRef<HTMLCanvasElement>
     | undefined;
 
-  private turtle: Turtle | undefined;
   private animationReset$ = new Subject<void>();
   private onDestroy$ = new Subject<void>();
 
@@ -39,15 +31,17 @@ export class AppComponent implements OnInit, OnDestroy {
 
   canvasWidth: number = 50;
   canvasHeight: number = 50;
-  commands: string[] = [];
   isLoaded: boolean = false;
+  scene: Scene | undefined;
 
   @HostListener('window:resize', ['$event'])
   onResize() {
     this.reset();
   }
 
-  constructor(private cd: ChangeDetectorRef) {}
+  constructor(private cd: ChangeDetectorRef) {
+    this.scene = new Scene(this.canvasWidth, this.canvasHeight);
+  }
 
   ngOnInit(): void {}
 
@@ -68,7 +62,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   run() {
     this.animationReset$.next();
-    this.turtle?.reset();
+    this.scene?.reset(this.canvasWidth, this.canvasHeight);
     from(this.code.split('\n'))
       .pipe(
         concatMap((command) => of(command).pipe(delay(60))),
@@ -79,41 +73,15 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private addCommand(input: string) {
-    const command: CommandWithType = pipe(input)(lexer, parse);
-    if (command.type === TokenType.NOT_FOUND) return;
-    this.commands.push(input);
-
-    if (this.turtle) {
-      this.turtle.execute(command);
-    }
+    this.scene?.execute(input);
   }
 
   private reset() {
     this.canvasWidth = window.innerWidth / 2;
     this.canvasHeight = window.innerHeight / 2;
-    const ctx = this.canvas?.nativeElement.getContext('2d');
-    if (ctx) {
-      this.loadTurtleImage(ctx);
-    }
+
+    this.scene?.reset(this.canvasWidth, this.canvasHeight);
 
     this.cd.detectChanges();
-  }
-
-  private loadTurtleImage(ctx: CanvasRenderingContext2D) {
-    const turtleImage = new Image();
-    turtleImage.src = 'assets/turtle.jpeg';
-
-    turtleImage.onload = () => {
-      this.initScene(ctx, turtleImage);
-    };
-  }
-
-  private initScene(
-    ctx: CanvasRenderingContext2D,
-    turtleImage: HTMLImageElement,
-  ) {
-    this.commands = [];
-    this.turtle = new Turtle(ctx, turtleImage);
-    this.turtle.drawTurtle();
   }
 }

@@ -1,4 +1,5 @@
-import p5 from 'p5';
+import * as p5 from 'p5';
+
 import {
   CommandWithListValue,
   CommandWithNumberValue,
@@ -10,27 +11,26 @@ interface Line {
   startY: number;
   endX: number;
   endY: number;
-  color: string;
-  width: number;
+  color: p5.Color;
+  penWeight: number;
 }
 
 export class Turtle {
-  private x: number;
-  private y: number;
+  private x: number = 0;
+  private y: number = 0;
   private direction: number = 0;
   private isPenDown: boolean = false;
   private penWidth: number = 1;
   private movementSpeed = 3;
-  private penColor: p5.Color;
-  private turtleImage: p5.Image;
-  private sketch: p5;
+  private penColor: p5.Color | undefined;
+  private lines: Line[] = [];
 
-  constructor(sketch: p5, turtleImagePath: string) {
+  constructor(
+    private sketch: p5,
+    private turtleImage: p5.Image,
+  ) {
     this.sketch = sketch;
-    this.x = this.sketch.width / 2;
-    this.y = this.sketch.height / 2;
-    this.penColor = this.sketch.color(0, 0, 0);
-    this.turtleImage = this.sketch.loadImage(turtleImagePath);
+    this.reset();
   }
 
   execute(command: CommandWithType) {
@@ -59,37 +59,51 @@ export class Turtle {
     const handler = commandHandlers[command.type];
     if (handler) {
       handler(command);
-      this.drawScene();
     }
   }
-  drawTurtle() {
-    this.sketch.push();
-    this.sketch.translate(this.x, this.y);
-    this.sketch.rotate(this.direction);
-    this.sketch.imageMode(this.sketch.CENTER);
-    this.sketch.image(this.turtleImage, 0, 0);
-    this.sketch.pop();
+
+  draw() {
+    this.sketch.clear(255, 255, 255, 1);
+    this.drawLines();
+    this.drawTurtle();
   }
 
   reset() {
-    this.center();
     this.direction = 0;
     this.lines = [];
-    this.drawScene();
+    this.center();
+  }
+
+  private drawTurtle() {
+    this.sketch.push();
+    this.sketch.translate(this.x, this.y);
+    this.sketch.imageMode(this.sketch.CENTER);
+    this.sketch.rotate(this.direction);
+    this.sketch.image(this.turtleImage, 0, 0);
+    this.sketch.imageMode(this.sketch.CORNER);
+    this.sketch.pop();
+  }
+
+  private drawLines() {
+    this.lines.forEach(({ startX, startY, endX, endY, color, penWeight }) => {
+      this.sketch.stroke(color);
+      this.sketch.strokeWeight(penWeight);
+      this.sketch.line(startX, startY, endX, endY);
+    });
   }
 
   private forward() {
-    const moveX = Math.sin(this.direction) * 10 * this.movementSpeed;
-    const moveY = Math.cos(this.direction) * 10 * this.movementSpeed;
+    const moveX = this.sketch.sin(this.direction) * 10 * this.movementSpeed;
+    const moveY = this.sketch.cos(this.direction) * 10 * this.movementSpeed;
     const imageSize = 5;
 
     if (
-      this.x + moveX + imageSize > this.ctx.canvas.width ||
+      this.x + moveX + imageSize > this.sketch.width ||
       this.x + moveX - imageSize <= 0
     )
       return;
     if (
-      this.y - moveY + imageSize > this.ctx.canvas.height ||
+      this.y - moveY + imageSize > this.sketch.height ||
       this.y - moveY - imageSize <= 0
     )
       return;
@@ -100,23 +114,13 @@ export class Turtle {
         startY: this.y,
         endX: this.x + moveX,
         endY: this.y - moveY,
-        color: this.penColor,
-        width: this.penWidth,
+        color: this.penColor || this.sketch.color(0, 0, 0),
+        penWeight: this.penWidth ?? 1,
       });
     }
 
     this.x += moveX;
     this.y -= moveY;
-  }
-
-  private drawScene() {
-    this.clearCanvas();
-    this.drawLines();
-    this.drawTurtle();
-  }
-
-  private clearCanvas() {
-    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
   }
 
   private turnLeft(degrees: number) {
@@ -148,36 +152,24 @@ export class Turtle {
   }
 
   private setPenColor({
-    r,
-    g,
-    b,
+    r = 0,
+    g = 0,
+    b = 0,
   }: {
-    r: number | string;
-    g: number | string;
-    b: number | string;
+    r: number;
+    g: number;
+    b: number;
   }) {
-    this.penColor = `rgb(${r},${g},${b})`;
-    this.ctx.strokeStyle = this.penColor;
+    this.penColor = this.sketch.color(r, g, b);
   }
 
   private setPenWidth(width: number) {
     this.penWidth = width;
-    this.ctx.lineWidth = this.penWidth;
   }
 
   private center() {
-    this.x = this.ctx.canvas.width / 2;
-    this.y = this.ctx.canvas.height / 2;
-  }
-
-  private drawLines() {
-    this.lines.forEach((line) => {
-      this.ctx.beginPath();
-      this.ctx.moveTo(line.startX, line.startY);
-      this.ctx.lineTo(line.endX, line.endY);
-      this.ctx.strokeStyle = line.color;
-      this.ctx.lineWidth = line.width;
-      this.ctx.stroke();
-    });
+    this.direction = 0;
+    this.x = this.sketch.width / 2;
+    this.y = this.sketch.height / 2;
   }
 }

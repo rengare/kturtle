@@ -40,12 +40,10 @@ $border-size: 3px;
   align-items: center;
   justify-content: center;
   flex: 2;
-  canvas {
-    border: $border-size solid #e0e0e0;
-  }
 }
 
 .monaco-action-bar .action-item .action-label.run-code {
     width: 20px;
     height: 20px;
 }
+
