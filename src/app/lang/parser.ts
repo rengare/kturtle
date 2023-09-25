@@ -2,7 +2,6 @@ import { AVAILABLE_COMMANDS } from 'src/app/constant';
 import { Token, TokenType, TokenValueType } from 'src/app/models';
 
 export type CommandWithType = { type: string };
-export type CommandWithNumberValue = { value: number } & CommandWithType;
 export type CommandWithListValue = { value: number[] } & CommandWithType;
 
 export const parse = (tokens: Token[]): CommandWithType => {

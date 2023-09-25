@@ -1,10 +1,6 @@
 import * as p5 from 'p5';
 
-import {
-  CommandWithListValue,
-  CommandWithNumberValue,
-  CommandWithType,
-} from './lang/parser';
+import { CommandWithListValue, CommandWithType } from './lang/parser';
 
 interface Line {
   startX: number;
@@ -41,13 +37,12 @@ export class Turtle {
       forward: () => this.forward(),
       penup: () => this.penUp(),
       pendown: () => this.penDown(),
-      turnleft: ({ value }: CommandWithNumberValue) => this.turnLeft(value),
-      turnright: ({ value }: CommandWithNumberValue) => this.turnRight(value),
-      direction: ({ value }: CommandWithNumberValue) =>
-        this.setDirection(value),
-      penwidth: ({ value }: CommandWithNumberValue) => this.setPenWidth(value),
-      gox: ({ value }: CommandWithNumberValue) => this.setX(value),
-      goy: ({ value }: CommandWithNumberValue) => this.setY(value),
+      turnleft: ({ value: [v] }: CommandWithListValue) => this.turnLeft(v),
+      turnright: ({ value: [v] }: CommandWithListValue) => this.turnRight(v),
+      direction: ({ value: [v] }: CommandWithListValue) => this.setDirection(v),
+      penwidth: ({ value: [v] }: CommandWithListValue) => this.setPenWidth(v),
+      gox: ({ value: [x] }: CommandWithListValue) => this.setX(x),
+      goy: ({ value: [y] }: CommandWithListValue) => this.setY(y),
       center: () => this.center(),
       go: ({ value: [x, y] }: CommandWithListValue) => {
         this.setX(Number(x));
@@ -64,8 +59,12 @@ export class Turtle {
 
   draw() {
     this.sketch.clear(255, 255, 255, 1);
-    this.drawLines();
-    this.drawTurtle();
+    this.sketch.push();
+    {
+      this.drawLines();
+      this.drawTurtle();
+    }
+    this.sketch.pop();
   }
 
   reset() {
@@ -75,7 +74,6 @@ export class Turtle {
   }
 
   private drawTurtle() {
-    this.sketch.push();
     this.sketch.translate(this.x, this.y);
     this.sketch.imageMode(this.sketch.CENTER);
     this.sketch.rotate(this.direction);
@@ -85,6 +83,7 @@ export class Turtle {
   }
 
   private drawLines() {
+    this.sketch.push();
     this.lines.forEach(({ startX, startY, endX, endY, color, penWeight }) => {
       this.sketch.stroke(color);
       this.sketch.strokeWeight(penWeight);

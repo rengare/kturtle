@@ -56,6 +56,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   onInit(editor: any) {
     editor.onKeyUp((e: KeyboardEvent) => {
+      console.log(editor.getValue());
       if (e.code !== 'F2') return;
     });
   }
