@@ -32,12 +32,14 @@ export class Scene {
   }
 
   reset(width: number, height: number) {
-    this.canvas?.remove();
     this.turtle?.reset();
+    this.canvas?.remove();
+
     this.width = width;
     this.height = height;
 
     this.canvas = new p5(this.createSketch.bind(this));
+    this.turtle = new Turtle(this.canvas as p5, this.turtleImage as p5.Image);
   }
 
   execute(input: string) {
