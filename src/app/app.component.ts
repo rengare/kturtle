@@ -62,7 +62,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   run() {
-    this.animationReset$.next();
+    this.reset();
     this.scene?.reset(this.canvasWidth, this.canvasHeight);
     from(this.code.split('\n'))
       .pipe(
@@ -78,6 +78,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private reset() {
+    this.animationReset$.next();
     this.canvasWidth = window.innerWidth / 2;
     this.canvasHeight = window.innerHeight / 2;
 

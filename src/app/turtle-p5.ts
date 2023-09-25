@@ -70,6 +70,8 @@ export class Turtle {
   reset() {
     this.direction = 0;
     this.lines = [];
+    this.setPenColor({ r: 0, g: 0, b: 0 });
+    this.setPenWidth(1);
     this.center();
   }
 

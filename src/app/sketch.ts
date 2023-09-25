@@ -12,7 +12,9 @@ export class Scene {
   constructor(
     private width: number,
     private height: number,
-  ) {}
+  ) {
+    this.canvas = new p5(this.createSketch.bind(this));
+  }
 
   createSketch(p: p5) {
     p.preload = () => {
@@ -33,13 +35,10 @@ export class Scene {
 
   reset(width: number, height: number) {
     this.turtle?.reset();
-    this.turtle = undefined;
-    this.canvas?.remove();
+    this.canvas?.resizeCanvas(width, height);
 
     this.width = width;
     this.height = height;
-
-    this.canvas = new p5(this.createSketch.bind(this));
   }
 
   execute(input: string) {
